@@ -1,0 +1,105 @@
+---
+title: "Survey_data_process_individual"
+author: "Zhiang Chen"
+date: "2023-09-01"
+output: pdf_document
+---
+
+# Read data
+```{r, warning=FALSE}
+## Central & Southern Africa
+Angola = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Central_Southern_Africa/Angola_survey.csv")
+Cameroon = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Central_Southern_Africa/Cameroon_survey.csv")
+DR_Congo = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Central_Southern_Africa/DR_Congo_survey.csv")
+South_Africa = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Central_Southern_Africa/South_Africa_survey.csv")
+
+## South Asia
+Bangladesh = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/South_Asia/Bangladesh_survey.csv")
+Pakistan = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/South_Asia/Pakistan_survey.csv")
+India <- read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/South_Asia/India_survey.csv")
+
+## Western Africa
+Nigeria = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Nigeria_survey.csv")
+Ghana = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Ghana_survey.csv")
+Ivory_Coast = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Ivory_Coast_survey.csv")
+Senegal = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Senegal_survey.csv")
+Burkina_Faso = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Burkina_Faso_survey.csv")
+Guinea = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Western_Africa/Guinea_survey.csv")
+
+## Latin America
+Colombia = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Latin_America/Colombia_survey.csv")
+Haiti = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Latin_America/Haiti_survey.csv")
+Peru = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Latin_America/Peru_survey.csv")
+Dominican_Republic = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Latin_America/Dominican_Republic_survey.csv")
+Guatemala = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Latin_America/Guatemala_survey.csv")
+
+## Nothern & Eastern Africa
+Egypt = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Egypt_survey.csv")
+Uganda = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Uganda_survey.csv")
+Tanzania = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Tanzania_survey.csv")
+Ethiopia = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Ethiopia_survey.csv")
+Zambia = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Zambia_survey.csv")
+Kenya = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Kenya_survey.csv")
+Madagascar = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Nothern_Eastern_Africa/Madagascar_survey.csv")
+
+## Southeast Asia
+Philippines = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Southeast_Asia/Philippines_survey.csv")
+Cambodia = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/DHS_output/Southeast_Asia/Cambodia_survey.csv")
+
+
+library(dplyr)
+combined_df <- bind_rows(South_Africa, DR_Congo, Cameroon, Angola,
+                     India, Pakistan, Bangladesh,
+                     Nigeria, Ghana, Ivory_Coast, Senegal, Burkina_Faso, Guinea,
+                     Colombia, Haiti, Peru, Dominican_Republic, Guatemala,
+                     Egypt, Uganda, Tanzania, Ethiopia, Zambia, Kenya, Madagascar,
+                     Philippines, Cambodia
+                     )
+
+survey_data_1 <- combined_df[, c("CASEID", "V000", "V001", "V002", "V008", "V010", "V011", "V012", "V013", "V015", "V020", "V106", "V107", "V113", "V116", "V119", "V120", "V121", "V122", "V123", "V124", "V125", "V129", "V136", "V137", "V149", "V190", "V191")]
+
+# create country column
+survey_data_1$country <- substr(survey_data_1$V000, 1, 2)
+
+# create country & cluster column
+survey_data_2 <- survey_data_1 %>% mutate(country_cluster = paste(country, V001, sep = ""))
+
+# Set not a dejure resident to na
+survey_data_2$V113 <- ifelse(survey_data_2$V113 == 97, NA, survey_data_2$V113)
+survey_data_2$V116 <- ifelse(survey_data_2$V116 == 97, NA, survey_data_2$V116)
+
+survey_data_2$V119 <- ifelse(survey_data_2$V119 == 7, NA, survey_data_2$V119)
+survey_data_2$V120 <- ifelse(survey_data_2$V120 == 7, NA, survey_data_2$V120)
+survey_data_2$V121 <- ifelse(survey_data_2$V121 == 7, NA, survey_data_2$V121)
+survey_data_2$V122 <- ifelse(survey_data_2$V122 == 7, NA, survey_data_2$V122)
+survey_data_2$V123 <- ifelse(survey_data_2$V123 == 7, NA, survey_data_2$V123)
+survey_data_2$V124 <- ifelse(survey_data_2$V124 == 7, NA, survey_data_2$V124)
+survey_data_2$V125 <- ifelse(survey_data_2$V125 == 7, NA, survey_data_2$V125)
+
+survey_data_2$V129 <- ifelse(survey_data_2$V129 == 97, NA, survey_data_2$V129)
+
+survey_data_3 <- survey_data_2[, c("CASEID", "V000", "V001", "V002", "V012", "V020", "V107", 
+                                   
+                                   # house
+                                   "V113", "V116", "V129", # categorical
+                                   "V119", "V120", "V121", "V122", "V123", "V124", "V125", # dummy
+
+                                   "V136", # last night people stay
+                                   "V137", # number of kids under 5
+                                   "V149", # education categorical
+                                   
+                                   "V190", "V191", # wealth
+                                   
+                                   "country", "country_cluster")]
+```
+
+
+# Combine Gini Index
+```{r}
+gini_code = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/gini_clean.csv")
+
+survey_data_4 <- merge(survey_data_3, gini_code, by = "country", all.x = TRUE)
+
+survey_data_4$estimated_gpd_per_capita <- (survey_data_4$V190 - 3) * survey_data_4$gini * survey_data_4$gpd_per_capita / 150 + survey_data_4$gpd_per_capita
+```
+
