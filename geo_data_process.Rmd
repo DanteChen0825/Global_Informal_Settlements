@@ -1,0 +1,305 @@
+---
+title: "geo_data_process"
+author: "Zhiang Chen"
+date: "2023-07-31"
+output: pdf_document
+---
+
+# Read data & manipulation
+```{r}
+library(dplyr)
+point_data = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/August/point_data.csv")
+
+# Function to get the latest available data from the columns
+get_All_Population_Count_latest <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["All_Population_Count_2020"])) {
+    latest_data <- row["All_Population_Count_2020"]
+  } else if (!is.na(row["All_Population_Count_2015"])) {
+    latest_data <- row["All_Population_Count_2015"]
+  } else if (!is.na(row["All_Population_Count_2010"])) {
+    latest_data <- row["All_Population_Count_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$All_Population_Count_latest <- apply(point_data, 1, get_All_Population_Count_latest)
+
+get_latest_aridity <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Aridity_2020"])) {
+    latest_data <- row["Aridity_2020"]
+  } else if (!is.na(row["Aridity_2015"])) {
+    latest_data <- row["Aridity_2015"]
+  } else if (!is.na(row["Aridity_2010"])) {
+    latest_data <- row["Aridity_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Aridity_latest <- apply(point_data, 1, get_latest_aridity)
+
+
+get_latest_diurnal_temperature_range <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Diurnal_Temperature_Range_2020"])) {
+    latest_data <- row["Diurnal_Temperature_Range_2020"]
+  } else if (!is.na(row["Diurnal_Temperature_Range_2015"])) {
+    latest_data <- row["Diurnal_Temperature_Range_2015"]
+  } else if (!is.na(row["Diurnal_Temperature_Range_2010"])) {
+    latest_data <- row["Diurnal_Temperature_Range_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Diurnal_Temperature_Range_latest <- apply(point_data, 1, get_latest_diurnal_temperature_range)
+
+
+
+
+get_latest_vegetation_index <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Enhanced_Vegetation_Index_2020"])) {
+    latest_data <- row["Enhanced_Vegetation_Index_2020"]
+  } else if (!is.na(row["Enhanced_Vegetation_Index_2015"])) {
+    latest_data <- row["Enhanced_Vegetation_Index_2015"]
+  } else if (!is.na(row["Enhanced_Vegetation_Index_2010"])) {
+    latest_data <- row["Enhanced_Vegetation_Index_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Enhanced_Vegetation_Index_latest <- apply(point_data, 1, get_latest_vegetation_index)
+
+
+
+get_latest_frost_days <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Frost_Days_2020"])) {
+    latest_data <- row["Frost_Days_2020"]
+  } else if (!is.na(row["Frost_Days_2015"])) {
+    latest_data <- row["Frost_Days_2015"]
+  } else if (!is.na(row["Frost_Days_2010"])) {
+    latest_data <- row["Frost_Days_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Frost_Days_latest <- apply(point_data, 1, get_latest_frost_days)
+
+
+
+
+get_latest_land_surface_temperature <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Land_Surface_Temperature_2020"])) {
+    latest_data <- row["Land_Surface_Temperature_2020"]
+  } else if (!is.na(row["Land_Surface_Temperature_2015"])) {
+    latest_data <- row["Land_Surface_Temperature_2015"]
+  } else if (!is.na(row["Land_Surface_Temperature_2010"])) {
+    latest_data <- row["Land_Surface_Temperature_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Land_Surface_Temperature_latest <- apply(point_data, 1, get_latest_land_surface_temperature)
+
+
+# temperature
+
+get_latest_maximum_temperature <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Maximum_Temperature_2020"])) {
+    latest_data <- row["Maximum_Temperature_2020"]
+  } else if (!is.na(row["Maximum_Temperature_2015"])) {
+    latest_data <- row["Maximum_Temperature_2015"]
+  } else if (!is.na(row["Maximum_Temperature_2010"])) {
+    latest_data <- row["Maximum_Temperature_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Maximum_Temperature_latest <- apply(point_data, 1, get_latest_maximum_temperature)
+
+
+get_latest_mean_temperature <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Mean_Temperature_2020"])) {
+    latest_data <- row["Mean_Temperature_2020"]
+  } else if (!is.na(row["Mean_Temperature_2015"])) {
+    latest_data <- row["Mean_Temperature_2015"]
+  } else if (!is.na(row["Mean_Temperature_2010"])) {
+    latest_data <- row["Mean_Temperature_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$Mean_Temperature_latest <- apply(point_data, 1, get_latest_mean_temperature)
+
+
+
+get_latest_minimum_temperature <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Minimum_Temperature_2020"])) {
+    latest_data <- row["Minimum_Temperature_2020"]
+  } else if (!is.na(row["Minimum_Temperature_2015"])) {
+    latest_data <- row["Minimum_Temperature_2015"]
+  } else if (!is.na(row["Minimum_Temperature_2010"])) {
+    latest_data <- row["Minimum_Temperature_2010"]
+  }
+  return(latest_data)
+}
+
+
+point_data$Minimum_Temperature_latest <- apply(point_data, 1, get_latest_minimum_temperature)
+
+
+get_latest_night_land_surface_temp <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Night_Land_Surface_Temp_2020"])) {
+    latest_data <- row["Night_Land_Surface_Temp_2020"]
+  } else if (!is.na(row["Night_Land_Surface_Temp_2015"])) {
+    latest_data <- row["Night_Land_Surface_Temp_2015"]
+  } else if (!is.na(row["Night_Land_Surface_Temp_2010"])) {
+    latest_data <- row["Night_Land_Surface_Temp_2010"]
+  }
+  return(latest_data)
+}
+
+
+point_data$Night_Land_Surface_Temp_latest <- apply(point_data, 1, get_latest_night_land_surface_temp)
+
+
+get_latest_pet <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["PET_2020"])) {
+    latest_data <- row["PET_2020"]
+  } else if (!is.na(row["PET_2015"])) {
+    latest_data <- row["PET_2015"]
+  } else if (!is.na(row["PET_2010"])) {
+    latest_data <- row["PET_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$PET_latest <- apply(point_data, 1, get_latest_pet)
+
+
+## population
+get_latest_u5_population <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["U5_Population_2020"])) {
+    latest_data <- row["U5_Population_2020"]
+  } else if (!is.na(row["U5_Population_2015"])) {
+    latest_data <- row["U5_Population_2015"]
+  } else if (!is.na(row["U5_Population_2010"])) {
+    latest_data <- row["U5_Population_2010"]
+  }
+  return(latest_data)
+}
+
+point_data$U5_Population_latest <- apply(point_data, 1, get_latest_u5_population)
+
+
+get_latest_un_population_count <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["UN_Population_Count_2020"])) {
+    latest_data <- row["UN_Population_Count_2020"]
+  } else if (!is.na(row["UN_Population_Count_2015"])) {
+    latest_data <- row["UN_Population_Count_2015"]
+  } else if (!is.na(row["UN_Population_Count_2010"])) {
+    latest_data <- row["UN_Population_Count_2010"]
+  }
+  return(latest_data)
+}
+
+
+point_data$UN_Population_Count_latest <- apply(point_data, 1, get_latest_un_population_count)
+
+
+get_latest_un_population_density <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["UN_Population_Density_2020"])) {
+    latest_data <- row["UN_Population_Density_2020"]
+  } else if (!is.na(row["UN_Population_Density_2015"])) {
+    latest_data <- row["UN_Population_Density_2015"]
+  } else if (!is.na(row["UN_Population_Density_2010"])) {
+    latest_data <- row["UN_Population_Density_2010"]
+  }
+  return(latest_data)
+}
+
+
+point_data$UN_Population_Density_latest <- apply(point_data, 1, get_latest_un_population_density)
+
+
+get_latest_wet_days <- function(row) {
+  latest_data <- NA
+  if (!is.na(row["Wet_Days_2020"])) {
+    latest_data <- row["Wet_Days_2020"]
+  } else if (!is.na(row["Wet_Days_2015"])) {
+    latest_data <- row["Wet_Days_2015"]
+  } else if (!is.na(row["Wet_Days_2010"])) {
+    latest_data <- row["Wet_Days_2010"]
+  }
+  return(latest_data)
+}
+
+
+point_data$Wet_Days_latest <- apply(point_data, 1, get_latest_wet_days)
+
+
+# Select columns you want to keep
+selected_columns <- c("All_Population_Count_latest", "Aridity_latest", "Diurnal_Temperature_Range_latest", "Enhanced_Vegetation_Index_latest", "Frost_Days_latest", "Global_Human_Footprint", "Land_Surface_Temperature_latest", "Livestock_Cattle", "Livestock_Chickens", "Livestock_Goats", "Livestock_Pigs", "Livestock_Sheep", "Maximum_Temperature_latest", "Mean_Temperature_latest", "Minimum_Temperature_latest", "Night_Land_Surface_Temp_latest", "Nightlights_Composite", "PET_latest", "Temperature_April", "Temperature_August", "Temperature_December", "Temperature_February", "Temperature_January", "Temperature_July", "Temperature_June", "Temperature_March", "Temperature_May", "Temperature_November", "Temperature_October", "Temperature_September", "U5_Population_latest", "UN_Population_Count_latest", "UN_Population_Density_latest", "Wet_Days_latest", "avgArea_grid", "avgArea_point", "numPolygons_point", "numPolygons_grid",  "totalArea_grid", "totalArea_point", "medianArea_point", "stdDevArea_point", "DHSCC", "DHSCLUST", "DHSID", "DHSYEAR", "GDP_per_capita", "GPS_Dataset", "SurveyID", ".geo")
+
+
+# Create a new dataframe with the selected columns using subset
+point_data_1 <- subset(point_data, select = selected_columns)
+
+point_data_2 <- point_data_1 %>% mutate(country_cluster = paste(DHSCC, DHSCLUST, sep = ""))
+
+
+point_data_3 <- point_data_2 %>%
+  rowwise() %>%
+  mutate(
+    Max_month_Temperature = max(c(Temperature_April, Temperature_August, Temperature_December,
+                            Temperature_February, Temperature_January, Temperature_July,
+                            Temperature_June, Temperature_March, Temperature_May,
+                            Temperature_November, Temperature_October, Temperature_September)),
+    Min_month_Temperature = min(c(Temperature_April, Temperature_August, Temperature_December,
+                            Temperature_February, Temperature_January, Temperature_July,
+                            Temperature_June, Temperature_March, Temperature_May,
+                            Temperature_November, Temperature_October, Temperature_September)),
+    Mean_month_Temperature = mean(c(Temperature_April, Temperature_August, Temperature_December,
+                              Temperature_February, Temperature_January, Temperature_July,
+                              Temperature_June, Temperature_March, Temperature_May,
+                              Temperature_November, Temperature_October, Temperature_September)),
+    Median_month_Temperature = median(c(Temperature_April, Temperature_August, Temperature_December,
+                                  Temperature_February, Temperature_January, Temperature_July,
+                                  Temperature_June, Temperature_March, Temperature_May,
+                                  Temperature_November, Temperature_October, Temperature_September))
+  )
+
+
+selected_columns_2 <- c("All_Population_Count_latest", "Aridity_latest", "Diurnal_Temperature_Range_latest", "Enhanced_Vegetation_Index_latest", "Frost_Days_latest", "Global_Human_Footprint", "Land_Surface_Temperature_latest", "Livestock_Cattle", "Livestock_Chickens", "Livestock_Goats", "Livestock_Pigs", "Livestock_Sheep", "Night_Land_Surface_Temp_latest", "Nightlights_Composite", "PET_latest", "U5_Population_latest", "UN_Population_Count_latest", "UN_Population_Density_latest", "Wet_Days_latest", "avgArea_grid", "avgArea_point", "numPolygons_point", "numPolygons_grid",  "totalArea_grid", "totalArea_point", "medianArea_point", "stdDevArea_point", "DHSCC", "DHSCLUST", "DHSID", "DHSYEAR", "GDP_per_capita", "GPS_Dataset", "SurveyID", ".geo", "Max_month_Temperature", "Min_month_Temperature", "Mean_month_Temperature", "Median_month_Temperature", "country_cluster")
+
+point_data_4 <- subset(point_data_3, select = selected_columns_2)
+
+```
+
+
+```{r}
+point_data_Gaussian = read.csv("/Users/chenzhiang/Desktop/CASA/CASA0004D/Ollie/Gaussian.csv")
+
+selected_columns_Gaussian <- c("DHSID","average_constant", "median_constant", "stdDev_constant")
+
+point_data_Gaussian_2 <- subset(point_data_Gaussian, select = selected_columns_Gaussian)
+
+point_data_5 <- merge(point_data_4, point_data_Gaussian_2, by = "DHSID", all.x = TRUE)
+```
+
+```{r}
+write.csv(selected_data, file = "/Users/chenzhiang/Desktop/CASA/CASA0004D/August/output.csv")
+```
+
+
