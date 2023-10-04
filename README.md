@@ -1,5 +1,7 @@
 # Global_Informal_Settlements
 
+This project is a component of my MSc Urban Spatial Science dissertation, [A Machine Learning Approach for The Identification of Informal Settlements by Remote Sensing Data and Socio-Economic Linkages, Evidence From 68 Cities Around the Globe](Dissertation.pdf), completed at the UCL [Centre for Advanced Spatial Analysis](https://www.ucl.ac.uk/bartlett/casa/). The guidance and support of my supervisor, [Dr. Ollie Ballinger](https://oballinger.github.io), have been instrumental throughout this study.
+
 ## DHS Data
 
 In light of the constraints imposed by the DHS, the raw data are not allowed to be shared publicly. However, interested parties can access the pertinent raw data via [the official website of the DHS Program](https://dhsprogram.com/data/available-datasets.cfm), with the data being readily accessible upon request.
