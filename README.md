@@ -4,7 +4,7 @@
 
 Due to the limitations of DHS, its raw data are not allowed to be shared publicly. The relevant raw data can be found on the official website of the DHS Program (https://dhsprogram.com/data/available-datasets.cfm) and are available for free upon request.
 
-The SAS codes for each country that processes DHS raw data can be found in the [DHS_SAS_code](DHS_SAS_code) folder, and the processed output data for each country can be found in the DHS_output folder.
+The SAS codes for each country that processes DHS raw data can be found in the [DHS_SAS_code](DHS_SAS_code) folder, and the processed output data for each country can be found in the [DHS_output folder](DHS_output folder).
 
 We then use R to integrate the data and for manipulation. The relevant code for the individual level can be found in the file Survey_data_process_individual.Rmd, and code for cluster level can be found in the file Survey_data_process_individual.Rmd. The Gini coefficient data used in this process, gini_clean.csv, can be found in the data folder.
 
