@@ -22,3 +22,7 @@ The output geojson files of Google Earth Engine are in the [GEE_output](GEE_outp
 The code for analysing the data at the individual level was carried out using R and can be found in [data_analysis_individual.Rmd](data_analysis_individual.Rmd), which includes the output of some data visualisations, as well as the Models 1 to 9.
 
 The R code for data analysis at the cluster level can be found in [data_analysis_cluster.Rmd](data_analysis_cluster.Rmd), which includes the output of partial visualisations, as well as the Models 10 to 17.
+
+## Data Visualization
+
+During the course of this project, numerous visualizations were crafted. One of these visualizations is [Global Cities Building Area Map](https://dantechen0825.github.io/Global_Building_Area_Layer/) based on Open Buildings data, encompassing a visualization of building areas within a 500-meter grid across 27 countries and 68 most populous cities worldwide. In this visualization, deeper colors signify larger areas covered by buildings within the grid, implying a lack of greenery, congestion, or high population density.
