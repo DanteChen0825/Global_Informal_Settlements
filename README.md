@@ -2,7 +2,7 @@
 
 ## DHS Data
 
-Due to the limitations of DHS, its raw data are not allowed to be shared publicly. The relevant raw data can be found on the official website of the DHS Program (https://dhsprogram.com/data/available-datasets.cfm) and are available for free upon request.
+Due to the limitations of DHS, its raw data are not allowed to be shared publicly. The relevant raw data can be found on [the official website of the DHS Program](https://dhsprogram.com/data/available-datasets.cfm) and are available for free upon request.
 
 The SAS codes for each country that processes DHS raw data can be found in the [DHS_SAS_code](DHS_SAS_code) folder, and the processed output data for each country can be found in the [DHS_output folder](Global_Informal_Settlements/DHS_output).
 
