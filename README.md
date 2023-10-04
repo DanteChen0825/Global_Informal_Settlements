@@ -1,6 +1,6 @@
 # Global_Informal_Settlements
 
-This project is a component of my MSc Urban Spatial Science dissertation, [A Machine Learning Approach for The Identification of Informal Settlements by Remote Sensing Data and Socio-Economic Linkages, Evidence From 68 Cities Around the Globe](Dissertation.pdf), completed at the UCL [Centre for Advanced Spatial Analysis](https://www.ucl.ac.uk/bartlett/casa/). The guidance and support of my supervisor, [Dr. Ollie Ballinger](https://oballinger.github.io), have been instrumental throughout this study.
+This project is a component of my MSc Urban Spatial Science dissertation, [A Machine Learning Approach for The Identification of Informal Settlements by Remote Sensing Data and Socio-Economic Linkages, Evidence From 68 Cities Around the Globe](Dissertation.pdf), completed at the [UCL Centre for Advanced Spatial Analysis](https://www.ucl.ac.uk/bartlett/casa/). The guidance and support of my supervisor, [Dr. Ollie Ballinger](https://oballinger.github.io), have been instrumental throughout this study.
 
 ## DHS Data
 
