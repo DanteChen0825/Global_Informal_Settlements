@@ -14,10 +14,8 @@ We then use R to integrate the data and for manipulation. The relevant code for 
 
 ## Remote Sensing Data
 
-We used JavaScript code in Google Earth Engine to calculate the relevant building area metrics as well as the Small Building Density Score. The relevant code is available at the following link. 
-
-[Script Path](https://code.earthengine.google.com/?scriptPath=users%2FDanteChen0825%2FGlobal_Informal_Settlements%3AData_Processing) Or
-[Shareable Snapshot](https://code.earthengine.google.com/d27b6083956925d1113667b9f3358a30)
+We used JavaScript code in Google Earth Engine to calculate the relevant building area metrics as well as the Small Building Density Score. The relevant code is available at Google Earth Engine[Script Path](https://code.earthengine.google.com/?scriptPath=users%2FDanteChen0825%2FGlobal_Informal_Settlements%3AData_Processing) Or
+[Shareable Snapshot](https://code.earthengine.google.com/d27b6083956925d1113667b9f3358a30).
 
 Special attention should be paid to the fact that due to the excessive amount of calculation, the total computing time of Google Earth Engine exceeds 24 hours, therefore, we split one large task into several small tasks according to countries or regions, and then merge the output results into one file. 
 
