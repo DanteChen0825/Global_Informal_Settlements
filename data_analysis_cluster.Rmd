@@ -1,0 +1,598 @@
+---
+title: "data_analysis_cluster"
+author: "Zhiang Chen"
+date: "2023-08-04"
+output: pdf_document
+---
+
+# Combine survey data with point data
+```{r}
+point_cluster_survey_data_1 <- merge(point_data_5, cluster_survey_data_1, by = "country_cluster", all.x = TRUE)
+
+#point_cluster_survey_data_1 <- point_cluster_survey_data_1 %>%
+#  mutate(country = ifelse(substr(country_cluster, 1, 2) == "CO", "Colombia", country))
+
+
+point_cluster_survey_data_1 <- point_cluster_survey_data_1 %>%
+  mutate(country = case_when(
+    substr(country_cluster, 1, 2) == "CO" ~ "Colombia",
+    substr(country_cluster, 1, 2) == "EG" ~ "Egypt",
+    substr(country_cluster, 1, 2) == "IA" ~ "India",
+    substr(country_cluster, 1, 2) == "ZA" ~ "South Africa",
+    TRUE ~ country
+  ))
+
+point_cluster_survey_data_1 <- point_cluster_survey_data_1 %>%
+  mutate(country_code = case_when(
+    substr(country_cluster, 1, 2) == "CO" ~ "CO",
+    substr(country_cluster, 1, 2) == "EG" ~ "EG",
+    substr(country_cluster, 1, 2) == "IA" ~ "IA",
+    substr(country_cluster, 1, 2) == "ZA" ~ "ZA",
+    TRUE ~ country_code
+  ))
+
+```
+
+```{r, warning=FALSE}
+# Specify the columns to convert
+columns_to_convert_to_num <- c('All_Population_Count_latest', 'Aridity_latest', 'Diurnal_Temperature_Range_latest', 'Enhanced_Vegetation_Index_latest', 'Frost_Days_latest', 'Land_Surface_Temperature_latest', 'Night_Land_Surface_Temp_latest', 'PET_latest', 'U5_Population_latest', 'UN_Population_Count_latest', 'UN_Population_Density_latest', 'Wet_Days_latest')
+
+# Use mutate_at() to convert the selected columns to decimal type
+point_cluster_survey_data_2 <- point_cluster_survey_data_1 %>%
+  mutate_at(vars(columns_to_convert_to_num), as.numeric)
+```
+
+
+
+```{r}
+point_cluster_survey_data_2$medianArea_point_log <- log(point_cluster_survey_data_2$medianArea_point)
+point_cluster_survey_data_2$avgArea_point_log <- log(point_cluster_survey_data_2$avgArea_point)
+point_cluster_survey_data_2$totalArea_point_log <- log(point_cluster_survey_data_2$totalArea_point)
+point_cluster_survey_data_2$stdDevArea_point_log <- log(point_cluster_survey_data_2$stdDevArea_point)
+
+
+# Model4
+point_cluster_survey_data_2$cluster_gpd_per_capita_log <- log(point_cluster_survey_data_2$cluster_gpd_per_capita)
+
+
+
+#point_cluster_survey_data_2 <- subset(point_cluster_survey_data_2, !is.na(country))
+
+
+point_cluster_survey_data_2$median_constant_log <- log(point_cluster_survey_data_2$median_constant)
+point_cluster_survey_data_2$average_constant_log <- log(point_cluster_survey_data_2$average_constant)
+point_cluster_survey_data_2$stdDev_constant_log <- log(point_cluster_survey_data_2$stdDev_constant)
+
+```
+
+
+
+```{r}
+library(ggplot2)
+
+plot_medianArea_point_log <- ggplot(data = point_cluster_survey_data_2, aes(x = medianArea_point_log, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Log Median Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+
+plot_avgArea_point <- ggplot(data = point_cluster_survey_data_2, aes(x = avgArea_point, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Average Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_totalArea_point <- ggplot(data = point_cluster_survey_data_2, aes(x = totalArea_point, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Total Average Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_stdDevArea_point_log <- ggplot(data = point_cluster_survey_data_2, aes(x = stdDevArea_point_log, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Log SD of Building Area", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+```
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+
+combined_plots <- plot_avgArea_point + plot_medianArea_point_log + plot_totalArea_point + plot_stdDevArea_point_log +
+  plot_layout(guides = "collect")
+
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot9.png", plot = combined_plots, width = 12, height = 6, dpi = 500)
+
+```
+
+
+
+```{r}
+
+plot_median_constant_log <- ggplot(data = point_cluster_survey_data_2, aes(x = median_constant_log, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Log Median SBDS", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_average_constant <- ggplot(data = point_cluster_survey_data_2, aes(x = average_constant, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster Average SBDS", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_stdDev_constant <- ggplot(data = point_cluster_survey_data_2, aes(x = stdDev_constant, fill = country)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Cluster SD of SBDS", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+
+```
+
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+
+combined_plots <- plot_average_constant + plot_median_constant_log + plot_stdDev_constant +
+  plot_layout(guides = "collect")
+
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot10.png", plot = combined_plots, width = 12, height = 4, dpi = 500)
+
+```
+
+
+## Model10 cluster EIP
+
+```{r}
+library(ggplot2)
+
+ggplot(data = point_cluster_survey_data_2, aes(x = cluster_gpd_per_capita, fill = country)) +
+  geom_histogram(bins = 18, color = "black") +
+  labs(title = "cluster_gpd_per_capita", x = "Values", y = "Frequency")
+
+ggplot(data = point_cluster_survey_data_2, aes(x = cluster_gpd_per_capita_log, fill = country)) +
+  geom_histogram(bins = 12, color = "black") +
+  labs(title = "cluster_gpd_per_capita_log", x = "Values", y = "Frequency")
+```
+
+```{r}
+ggplot(data = point_cluster_survey_data_2, aes(x = medianArea_point, y = stdDevArea_point, color = country)) +
+  geom_point(size = 0.2) +
+  labs(title = "Scatterplot", x = "medianArea_point", y = "stdDevArea_point")
+```
+
+
+```{r}
+model10 = lm(cluster_gpd_per_capita_log ~ medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+               #All_Population_Count_latest  + 
+              Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest,
+            point_cluster_survey_data_2) 
+options(scipen=999, digits = 1)
+summary(model10)
+# par(mfrow = c(2, 2))
+plot(model10)
+
+data.frame(Predictor = names(vif(model10)), VIF = vif(model10))
+nobs(model10)
+```
+
+## Model 11 Education Year
+
+```{r}
+model11 = lm(edu_year ~ medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+               #All_Population_Count_latest  + 
+               Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest +
+               country
+             ,
+            point_cluster_survey_data_2)
+options(scipen=999, digits = 1)
+summary(model11)
+# par(mfrow = c(2, 2))
+plot(model11)
+
+#data.frame(Predictor = names(vif(model11)), VIF = vif(model11))
+nobs(model11)
+```
+
+
+
+
+## Model 12 logestic
+
+              
+```{r, warning=FALSE}
+
+# Fit a logistic regression model
+model <- glm(motor ~ medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+               #All_Population_Count_latest  + 
+               Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest + U5_Population_latest + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest,
+            point_cluster_survey_data_2, family = "binomial")
+
+# Print model summary
+# summary(model)
+
+# Assuming you have predicted values and actual values
+predicted_values <- predict(model, newdata = point_cluster_survey_data_2, type = "response")
+
+actual_values <- point_cluster_survey_data_2$motor
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((actual_values - predicted_values)^2, na.rm = TRUE)
+# Calculate Root Mean Squared Error (RMSE)
+rmse <- round(sqrt(mse),4)
+# Calculate Mean Absolute Error (MAE)
+mae <- mean(abs(actual_values - predicted_values), na.rm = TRUE)
+# Calculate Coefficient of Determination (R-squared)
+r_squared <- round(1 - sum((actual_values - predicted_values)^2, na.rm = TRUE) / sum((actual_values - mean(actual_values, na.rm = TRUE))^2, na.rm = TRUE), 4)
+
+# Print the results
+cat("AIC:", round(AIC(model),0), "\n")
+cat("BIC:", round(BIC(model),0), "\n")
+
+#cat("Mean Squared Error (MSE):", mse, "\n")
+cat("Root Mean Squared Error (RMSE):", rmse, "\n")
+#cat("Mean Absolute Error (MAE):", mae, "\n")
+cat("Coefficient of Determination (R-squared):", r_squared, "\n")
+
+cat("Observation:", nobs(model), "\n")
+```
+
+
+```{r}
+# Predict probabilities and labels
+predicted_probs <- predict(model, point_cluster_survey_data_2, type = "response")
+predicted_labels <- ifelse(predicted_probs > 0.5, 1, 0)
+
+# Calculate accuracy
+accuracy <- mean(predicted_labels == point_cluster_survey_data_2$y)
+cat("Accuracy:", accuracy, "\n")
+
+# Plot ROC curve
+library(pROC)
+roc_obj <- roc(point_cluster_survey_data_2$y, predicted_probs)
+plot(roc_obj)
+text(-0.3, 0.02, paste("AUC =", round(roc_obj$auc, 4)), cex = 1)
+```
+
+
+# Model13
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model13_1 = lm(medianArea_point_log ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 10)
+summary(model13_1)
+# par(mfrow = c(2, 2))
+#plot(model13_1)
+
+nobs(model13_1)
+coefficients_df <- summary(model13_1)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model13_2 = lm(avgArea_point ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 1)
+summary(model13_2)
+# par(mfrow = c(2, 2))
+#plot(model13_2)
+
+nobs(model13_2)
+coefficients_df <- summary(model13_2)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model13_3 = lm(stdDevArea_point_log ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 10)
+summary(model13_3)
+# par(mfrow = c(2, 2))
+#plot(model13_3)
+
+nobs(model13_3)
+coefficients_df <- summary(model13_3)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model13_4 = lm(totalArea_point ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 1)
+summary(model13_4)
+# par(mfrow = c(2, 2))
+plot(model13_4)
+```
+
+
+# model 14
+
+```{r}
+library(car)
+model14 = lm(cluster_gpd_per_capita_log ~ median_constant_log  + stdDev_constant +
+               #All_Population_Count_latest  + 
+              Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest,
+            point_cluster_survey_data_2) 
+options(scipen=999, digits = 1)
+summary(model14)
+# par(mfrow = c(2, 2))
+plot(model14)
+
+data.frame(Predictor = names(vif(model14)), VIF = vif(model14))
+
+nobs(model14)
+```
+
+
+# model 15 
+
+```{r}
+model15 = lm(edu_year ~ median_constant_log  + stdDev_constant +
+               #All_Population_Count_latest  + 
+               Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest + U5_Population_latest + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest +
+               country,
+            point_cluster_survey_data_2)
+options(scipen=999, digits = 10)
+summary(model15)
+
+
+png("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/lim_plot1.png", width = 5000, height = 4000, res = 500)  # Adjust width and height as needed
+par(mfrow = c(2, 2))
+par(mar = c(3, 3, 3, 3))
+plot(model15)
+dev.off()
+
+#data.frame(Predictor = names(vif(model15)), VIF = vif(model15))
+nobs(model15)
+
+vif(model15)
+durbinWatsonTest(model15)
+```
+
+# model 16
+
+```{r, warning=FALSE}
+# electricity   radio   television    fridge      motor 
+
+# Fit a logistic regression model
+model <- glm(motor ~ median_constant_log + average_constant + stdDev_constant +
+               #All_Population_Count_latest  + 
+               Enhanced_Vegetation_Index_latest + Global_Human_Footprint  + Land_Surface_Temperature_latest +
+               #Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+              Nightlights_Composite +
+              U5_Population_latest + U5_Population_latest + UN_Population_Count_latest + UN_Population_Density_latest + Wet_Days_latest,
+            point_cluster_survey_data_2, family = "binomial")
+
+# Print model summary
+# summary(model)
+
+# Assuming you have predicted values and actual values
+predicted_values <- predict(model, newdata = point_cluster_survey_data_2, type = "response")
+
+actual_values <- point_cluster_survey_data_2$motor
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((actual_values - predicted_values)^2, na.rm = TRUE)
+# Calculate Root Mean Squared Error (RMSE)
+rmse <- round(sqrt(mse),4)
+# Calculate Mean Absolute Error (MAE)
+mae <- mean(abs(actual_values - predicted_values), na.rm = TRUE)
+# Calculate Coefficient of Determination (R-squared)
+r_squared <- round(1 - sum((actual_values - predicted_values)^2, na.rm = TRUE) / sum((actual_values - mean(actual_values, na.rm = TRUE))^2, na.rm = TRUE), 4)
+
+# Print the results
+cat("AIC:", round(AIC(model),0), "\n")
+cat("BIC:", round(BIC(model),0), "\n")
+
+#cat("Mean Squared Error (MSE):", mse, "\n")
+cat("Root Mean Squared Error (RMSE):", rmse, "\n")
+#cat("Mean Absolute Error (MAE):", mae, "\n")
+cat("Coefficient of Determination (R-squared):", r_squared, "\n")
+
+cat("Observation:", nobs(model), "\n")
+```
+
+# model 17
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model17_1 = lm(median_constant_log ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 10)
+summary(model17_1)
+# par(mfrow = c(2, 2))
+#plot(model17_1)
+
+nobs(model17_1)
+coefficients_df <- summary(model17_1)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model17_2 = lm(average_constant_log ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 10)
+summary(model17_2)
+# par(mfrow = c(2, 2))
+#plot(model17_2)
+
+nobs(model17_2)
+coefficients_df <- summary(model17_2)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+
+```{r}
+# medianArea_point_log + avgArea_point + stdDevArea_point_log + totalArea_point +
+model17_3 = lm(stdDev_constant_log ~ water_source_piped_dwelling +  water_source_piped_yard + water_source_public_tap +
+               water_source_bottled_water + water_source_tube_well + water_source_sachet_water +  water_source_cart_small_tank+
+               toilet_facility_flush_piped_sewer_system + toilet_facility_flush_septic_tank + toilet_facility_pit_latrine +
+               toilet_facility_flush_pit_latrine + toilet_facility_open_pit + roof_material_metal + roof_material_cement +
+               roof_material_calamine + roof_material_asbestos + roof_material_ceramic_tiles + roof_material_wood + roof_material_rustic_mat+
+               roof_material_roofing_shingles +  roof_material_wood_planks
+              #+ electricity  + radio +  television + fridge  +  bike  +  motor 
+               , point_cluster_survey_data_2) 
+options(scipen=999, digits = 10)
+summary(model17_3)
+# par(mfrow = c(2, 2))
+# plot(model17_3)
+
+nobs(model17_3)
+coefficients_df <- summary(model17_3)$coefficients[c("water_source_piped_yard", "water_source_public_tap", 
+                                                     "water_source_bottled_water", "water_source_sachet_water",
+                                                    "toilet_facility_pit_latrine", "toilet_facility_open_pit",
+                                                    "roof_material_metal", "roof_material_wood",
+                                                    "roof_material_roofing_shingles",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+

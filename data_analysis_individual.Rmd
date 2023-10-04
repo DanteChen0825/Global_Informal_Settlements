@@ -1,0 +1,738 @@
+---
+title: "data_analysis_individual"
+author: "Zhiang Chen"
+date: "2023-08-04"
+output: pdf_document
+---
+
+# Combine survey data with point data
+```{r}
+point_survey_data_1 <- merge(survey_data_4, point_data_5, by = "country_cluster", all.x = TRUE)
+```
+
+
+```{r, warning=FALSE}
+# Specify the columns to convert
+columns_to_convert_to_num <- c('All_Population_Count_latest', 'Aridity_latest', 'Diurnal_Temperature_Range_latest', 'Enhanced_Vegetation_Index_latest', 'Frost_Days_latest', 'Land_Surface_Temperature_latest', 'Night_Land_Surface_Temp_latest', 'PET_latest', 'U5_Population_latest', 'UN_Population_Count_latest', 'UN_Population_Density_latest', 'Wet_Days_latest')
+
+# Use mutate_at() to convert the selected columns to decimal type
+point_survey_data_2 <- point_survey_data_1 %>%
+  mutate_at(vars(columns_to_convert_to_num), as.numeric)
+
+# Specify the columns to convert
+columns_to_convert_to_str <- c("V001", "V002", "V020", "V113", "V116", "V129", "V119", "V120", "V121", "V122", "V123", "V124", "V125")
+
+# Use mutate_at() to convert the selected columns to categorical type
+point_survey_data_3 <- point_survey_data_2 %>%
+  mutate_at(vars(columns_to_convert_to_str), as.factor)
+
+point_survey_data_3$V107[point_survey_data_3$V107 == 98] <- NA
+
+point_survey_data_3$medianArea_point_log <- log(point_survey_data_3$medianArea_point)
+point_survey_data_3$avgArea_point_log <- log(point_survey_data_3$avgArea_point)
+point_survey_data_3$stdDevArea_point_log <- log(point_survey_data_3$stdDevArea_point)
+point_survey_data_3$totalArea_point_log <- log(point_survey_data_3$totalArea_point)
+
+point_survey_data_3$estimated_gpd_per_capita_log <- log(point_survey_data_3$estimated_gpd_per_capita)
+
+point_survey_data_3$V190_log <- log(point_survey_data_3$V190)
+point_survey_data_3$V191_log <- log(point_survey_data_3$V191)
+
+point_survey_data_3$V107_log <- log(point_survey_data_3$V107)
+point_survey_data_3$V149_log <- log(point_survey_data_3$V149)
+point_survey_data_3$V149_str <- factor(point_survey_data_3$V149)
+```
+
+
+
+
+# Area plot
+
+```{r}
+library(ggplot2)
+
+plot_medianArea_point <- ggplot(data = point_survey_data_3, aes(x = medianArea_point, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Median Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_medianArea_point_log <- ggplot(data = point_survey_data_3, aes(x = medianArea_point_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log Median Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_avgArea_point <- ggplot(data = point_survey_data_3, aes(x = avgArea_point, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Average Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_avgArea_point_log <- ggplot(data = point_survey_data_3, aes(x = avgArea_point_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log Average Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+
+plot_stdDevArea_point <- ggplot(data = point_survey_data_3, aes(x = stdDevArea_point, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Standard Deviation of Building Area", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_stdDevArea_point_log <- ggplot(data = point_survey_data_3, aes(x = stdDevArea_point_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log SD of Building Area", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_totalArea_point <- ggplot(data = point_survey_data_3, aes(x = totalArea_point, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Total Building Area", x = "Area", y = "Frequency")+
+  labs(fill = "Country")
+
+##ggplot(data = point_survey_data_3, aes(x = totalArea_point_log, fill = country_name)) +
+##  geom_histogram(bins = 15, color = "black") +
+##  labs(title = "totalArea_point_log", x = "Area", y = "Frequency")
+```
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+
+combined_plots <- plot_avgArea_point + plot_medianArea_point + plot_totalArea_point + plot_stdDevArea_point +
+  plot_layout(guides = "collect")
+
+combined_plots_log <- plot_avgArea_point_log + plot_medianArea_point_log + plot_stdDevArea_point_log +
+  plot_layout(guides = "collect")
+
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot5.png", plot = combined_plots, width = 12, height = 6, dpi = 500)
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot6.png", plot = combined_plots_log, width = 12, height = 4, dpi = 500)
+```
+
+
+
+## SBDS plot
+
+```{r}
+point_survey_data_3$median_constant_log <- log(point_survey_data_3$median_constant)
+point_survey_data_3$average_constant_log <- log(point_survey_data_3$average_constant)
+point_survey_data_3$stdDev_constant_log <- log(point_survey_data_3$stdDev_constant)
+```
+
+
+```{r}
+filtered_point_survey_data_3 <- point_survey_data_3 %>%
+  filter(median_constant < 0.005)
+
+plot_median_constant <- ggplot(data = filtered_point_survey_data_3, aes(x = median_constant, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Median SBDS (< 0.005)", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_median_constant_log <- ggplot(data = point_survey_data_3, aes(x = median_constant_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log Median SBDS", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_average_constant <- ggplot(data = point_survey_data_3, aes(x = average_constant, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Average SBDS", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_average_constant_log <- ggplot(data = point_survey_data_3, aes(x = average_constant_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log Average SBDS", x = "Scores", y = "Frequency")+
+  labs(fill = "Country")
+
+
+plot_stdDev_constant <- ggplot(data = point_survey_data_3, aes(x = stdDev_constant, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Standard Deviation of SBDS", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+
+plot_stdDev_constant_log <- ggplot(data = point_survey_data_3, aes(x = stdDev_constant_log, fill = country_name)) +
+  geom_histogram(bins = 15, color = "black") +
+  labs(title = "Log SD of SBDS", x = "Values", y = "Frequency")+
+  labs(fill = "Country")
+
+```
+
+
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+
+combined_plots_2 <- plot_average_constant +  plot_stdDev_constant +
+  plot_layout(guides = "collect")
+# plot_median_constant +
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot7.png", plot = combined_plots_2, width = 12, height = 4, dpi = 500)
+
+combined_plots_2_log <- plot_median_constant + plot_median_constant_log +
+  plot_layout(guides = "collect")
+
+ggsave("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/meth_plot8.png", plot = combined_plots_2_log, width = 12, height = 4, dpi = 500)
+```
+
+
+# Correlation plot
+
+
+```{r}
+library(corrplot)
+subset_df <- point_survey_data_3[, c("medianArea_point", "avgArea_point", "stdDevArea_point","totalArea_point",
+                                     
+                                     "median_constant", "average_constant", "stdDev_constant")]
+
+colnames(subset_df)[colnames(subset_df) == "medianArea_point"] <- "median_Area"
+colnames(subset_df)[colnames(subset_df) == "avgArea_point"] <- "average_Area"
+colnames(subset_df)[colnames(subset_df) == "stdDevArea_point"] <- "SD_Area"
+colnames(subset_df)[colnames(subset_df) == "totalArea_point"] <- "total_Area"
+
+colnames(subset_df)[colnames(subset_df) == "median_constant"] <- "median_SBDS"
+colnames(subset_df)[colnames(subset_df) == "average_constant"] <- "average_SBDS"
+colnames(subset_df)[colnames(subset_df) == "stdDev_constant"] <- "SD_SBDS"
+
+cor_matrix <- cor(subset_df)
+corrplot(cor_matrix, method = "color",  tl.col = "black")
+cor(subset_df)
+```
+
+
+
+## Model1 
+
+```{r}
+library(ggplot2)
+
+ggplot(data = point_survey_data_3, aes(x = estimated_gpd_per_capita, fill = country_name)) +
+  geom_histogram(bins = 12, color = "black") +
+  labs(title = "estimated_gpd_per_capita", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = estimated_gpd_per_capita_log, fill = country_name)) +
+  geom_histogram(bins = 12, color = "black") +
+  labs(title = "estimated_gpd_per_capita_log", x = "Values", y = "Frequency")
+```
+
+```{r}
+# gdp estimation
+model1 = lm(estimated_gpd_per_capita_log ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         #All_Population_Count_latest  +
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest
+         , point_survey_data_3) 
+options(digits = 10)
+summary(model1)
+
+
+
+library(car)
+vif_values <- vif(model1)
+vif_values
+
+nobs(model1)
+```
+
+
+
+
+## Model 2 wealth index
+
+```{r}
+library(ggplot2)
+
+ggplot(data = point_survey_data_3, aes(x = V190, fill = country_name)) +
+  geom_histogram(bins = 5, color = "black") +
+  labs(title = "V190", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = V190_log, fill = country_name)) +
+  geom_histogram(bins = 5, color = "black") +
+  labs(title = "V190_log", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = V191, fill = country_name)) +
+  geom_histogram(bins = 5, color = "black") +
+  labs(title = "V191", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = V191_log, fill = country_name)) +
+  geom_histogram(bins = 5, color = "black") +
+  labs(title = "V191_log", x = "Values", y = "Frequency")
+```
+```{r}
+library(plm)
+summary(plm(V190 ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest, data = point_survey_data_3, 
+                      model = "within", index = "country_name"))
+```
+
+
+
+
+```{r}
+
+# Group the data by country
+grouped_data <- point_survey_data_3 %>%
+  group_by(country_name)
+
+
+# Create a function to fit regression models and extract coefficients
+fit_regression <- function(data) {
+  lm_model <- lm(V190 ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest, data = data)
+  summary(lm_model)
+}
+
+regression_summaries <- grouped_data %>%
+  summarise(
+            regression_summary = list(fit_regression(cur_data())),
+            num_observations = nrow(cur_data())
+            )
+
+# Print the regression summaries for each country
+for (i in seq_along(regression_summaries$regression_summary)) {
+  if(regression_summaries$regression_summary[[i]]$r.squared > 0.1 & regression_summaries$num_observations[i] > 2000){
+  cat("Regression Summary for Country:", unique(point_survey_data_3$country_name)[i], "\n")
+  print(regression_summaries$regression_summary[[i]])
+  cat("Number of Observations:", regression_summaries$num_observations[i], "\n")
+  cat("\n")}
+}
+
+```
+
+
+
+
+```{r}
+model2_test = lm(V190 ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + country_name
+         , point_survey_data_3) 
+options(scipen=999, digits = 1)
+summary(model2_test)
+par(mfrow = c(2, 2))
+plot(model2_test)
+vif_values <- vif(model2_test)
+vif_values
+
+```
+
+
+
+## Model3 Education year
+
+```{r}
+library(ggplot2)
+
+ggplot(data = point_survey_data_3, aes(x = V107, fill = country_name)) +
+  geom_histogram(bins = 12, color = "black") +
+  labs(title = "V107", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = V107_log, fill = country_name)) +
+  geom_histogram(bins = 12, color = "black") +
+  labs(title = "V107_log", x = "Values", y = "Frequency")
+```
+
+
+```{r}
+model3 = lm(V107 ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + country
+         , point_survey_data_3) 
+options(scipen=999, digits = 1)
+summary(model3)
+ par(mfrow = c(2, 2))
+plot(model3)
+
+#vif(model3)
+nobs(model3)
+```
+
+
+
+
+
+## Model Education level
+
+```{r}
+library(ggplot2)
+
+ggplot(data = point_survey_data_3, aes(x = V149, fill = country_name)) +
+  geom_histogram(bins = 6, color = "black") +
+  labs(title = "V149", x = "Values", y = "Frequency")
+
+ggplot(data = point_survey_data_3, aes(x = V149_log, fill = country_name)) +
+  geom_histogram(bins = 6, color = "black") +
+  labs(title = "V149_log", x = "Values", y = "Frequency")
+```
+
+
+```{r}
+model2_2 = lm(V149 ~ medianArea_point_log + avgArea_point_log + stdDevArea_point_log + totalArea_point + 
+         V012 +
+         All_Population_Count_latest  + Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest
+         , point_survey_data_3) 
+options(scipen=999, digits = 1)
+summary(model2_2)
+# par(mfrow = c(2, 2))
+plot(model2_2)
+```
+
+## Model 4 Education level tree model
+
+```{r}
+# Install and load the rpart package (if not already installed)
+# install.packages("rpart")
+library(rpart)
+library(rpart.plot)
+
+# Fit the classification tree model
+tree_model <- rpart(V149 ~ medianArea_point + avgArea_point + stdDevArea_point + totalArea_point+ 
+         V012 + country,
+         #+
+         #All_Population_Count_latest  + Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         #Nightlights_Composite + U5_Population_latest + U5_Population_latest + UN_Population_Count_latest + UN_Population_Density_latest, 
+         data = point_survey_data_3, method = "class", cp = 0.001)
+
+# Print the summary of the tree model
+print(tree_model)
+
+png("/Users/chenzhiang/Desktop/CASA/CASA0004D/visulization_output/results_plot1.png", width = 5000, height = 4000, res = 500)  # Adjust width and height as needed
+
+rpart.plot(tree_model)
+dev.off()
+```
+
+```{r}
+options(scipen=999, digits = 4)
+sum(point_survey_data_3$V012 <= 18)/sum(point_survey_data_3$V012 <= 10000)
+```
+
+
+
+
+
+# Model 5 Linkage of survey data with core remote sensing data
+
+```{r}
+model5_1 = lm(medianArea_point_log ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+#options(scipen=999, digits = 10)
+summary(model5_1)
+nobs(model5_1)
+#par(mfrow = c(2, 2))
+#plot(model5_1)
+
+coefficients_df <- summary(model5_1)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+
+```
+
+```{r}
+model5_2 = lm(avgArea_point ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model5_2)
+nobs(model5_2)
+# par(mfrow = c(2, 2))
+#plot(model5_2)
+
+coefficients_df <- summary(model5_2)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+model5_3 = lm(stdDevArea_point_log ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10, max.print=10000)
+
+summary(model5_3)
+nobs(model5_3)
+# par(mfrow = c(2, 2))
+#plot(model5_3)
+
+coefficients_df <- summary(model5_3)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+# not included
+model5_4 = lm(totalArea_point ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model5_4)
+nobs(model5_4)
+# par(mfrow = c(2, 2))
+#plot(model5_4)
+
+coefficients_df <- summary(model5_4)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+summary(lm(average_constant ~ stdDev_constant
+         , point_survey_data_3) )
+```
+
+
+
+# Model 6 SBDS EIP
+```{r}
+# gdp estimation
+model6 = lm(estimated_gpd_per_capita_log ~ median_constant_log  + stdDev_constant  + 
+              
+              V012 +
+         # All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite  + U5_Population_latest + UN_Population_Count_latest + UN_Population_Density_latest
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model6)
+plot(model6)
+
+data.frame(Predictor = names(vif(model6)), VIF = vif(model6))
+nobs(model6)
+
+```
+
+
+# Model 7 SBDS wealth index
+
+```{r}
+
+# Group the data by country
+grouped_data <- point_survey_data_3 %>%
+  group_by(country_name)
+
+# Create a function to fit regression models and extract coefficients
+fit_regression <- function(data) {
+  lm_model <- lm(V190 ~ median_constant_log  +  average_constant  +
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest, data = data)
+  summary(lm_model)
+}
+
+
+regression_summaries <- grouped_data %>%
+  summarise(
+            regression_summary = list(fit_regression(cur_data())),
+            num_observations = nrow(cur_data())
+            )
+
+# Print the regression summaries for each country
+for (i in seq_along(regression_summaries$regression_summary)) {
+  if(regression_summaries$regression_summary[[i]]$r.squared > 0.13 & regression_summaries$num_observations[i] > 2000){
+  cat("Regression Summary for Country:", unique(point_survey_data_3$country_name)[i], "\n")
+  print(regression_summaries$regression_summary[[i]])
+  cat("Number of Observations:", regression_summaries$num_observations[i], "\n")
+  cat("\n")}
+}
+
+
+```
+
+# Model 8 SBDS education year
+
+
+```{r}
+model8 = lm(V107 ~ median_constant_log + stdDev_constant + 
+         V012 +
+         #All_Population_Count_latest  + 
+           Global_Human_Footprint  +
+         # Livestock_Cattle + Livestock_Chickens + Livestock_Goats + Livestock_Pigs + Livestock_Sheep + 
+         Nightlights_Composite + U5_Population_latest  + UN_Population_Count_latest + UN_Population_Density_latest + country
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model8)
+par(mfrow = c(2, 2))
+plot(model8)
+#vif(model8)
+nobs(model3)
+```
+
+
+# Model 9 SBDS Linkage of survey data with SBDS core remote sensing data
+
+```{r}
+model9_1 = lm(median_constant_log ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model9_1)
+nobs(model9_1)
+#par(mfrow = c(2, 2))
+#plot(model9_1)
+
+coefficients_df <- summary(model9_1)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+model9_2 = lm(average_constant ~
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model9_2)
+nobs(model9_2)
+# par(mfrow = c(2, 2))
+#plot(model9_2)
+
+coefficients_df <- summary(model9_2)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+```{r}
+model9_3 = lm(stdDev_constant ~ 
+                V113 + V116 + V129 + V119 + V120 + V121 + V122 
+              #+ V123 + V124 + V125
+         , point_survey_data_3) 
+options(scipen=999, digits = 10)
+summary(model9_3)
+nobs(model9_3)
+# par(mfrow = c(2, 2))
+#plot(model9_3)
+
+coefficients_df <- summary(model9_3)$coefficients[c("V11312", "V11314", "V11321", "V11371",
+                                                    "V11612", "V11613", "V11622", "V11623",
+                                                    "V12931", "V12936",
+                                                    "V1191", "V1201", "V1211", "V1221",
+                                                    "(Intercept)"), ]
+
+format_pr <- function(p_value) {if (p_value < 0.001) {return("***")
+  } else if (p_value < 0.01) {return("**")
+  } else if (p_value < 0.05) {return("*")
+  } else {return("")}}
+coefficients_df <- data.frame(
+  Variable = rownames(coefficients_df),
+  Estimate = round(coefficients_df[, "Estimate"], 4),
+  `Std. Error` = round(coefficients_df[, "Std. Error"], 4),
+  `Pr(>|t|)` = sapply(coefficients_df[, "Pr(>|t|)"], format_pr)
+)
+print(coefficients_df)
+```
+
+
+
