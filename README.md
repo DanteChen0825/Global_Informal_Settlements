@@ -2,11 +2,11 @@
 
 ## DHS Data
 
-Due to the limitations of DHS, its raw data are not allowed to be shared publicly. The relevant raw data can be found on [the official website of the DHS Program](https://dhsprogram.com/data/available-datasets.cfm) and are available for free upon request.
+In light of the constraints imposed by the DHS, the raw data are not allowed to be shared publicly. However, interested parties can access the pertinent raw data via [the official website of the DHS Program](https://dhsprogram.com/data/available-datasets.cfm), with the data being readily accessible upon request.
 
-The SAS codes for each country that processes DHS raw data can be found in the [DHS_SAS_code](DHS_SAS_code) folder, and the processed output data for each country can be found in the [DHS_output folder](Global_Informal_Settlements/DHS_output).
+The SAS codes for processing DHS raw data specific to each country are located within the [DHS_SAS_code](DHS_SAS_code) directory, while the processed output data for each country can be located in the [DHS_output folder](Global_Informal_Settlements/DHS_output) directory.
 
-We then use R to integrate the data and for manipulation. The relevant code for the individual level can be found in the file [Survey_data_process_individual.Rmd](Survey_data_process_individual.Rmd), and code for cluster level can be found in the file [Survey_data_process_cluster.Rmd](Survey_data_process_cluster.Rmd). The Gini coefficient data used in this process, [gini_clean.csv](data/gini_clean.csv), can be found in the data folder.
+Subsequently, we employ R for data integration and manipulation. The respective code for individual-level processing is encapsulated in the [Survey_data_process_individual.Rmd](Survey_data_process_individual.Rmd), whereas code for cluster-level processing can be found in the [Survey_data_process_cluster.Rmd](Survey_data_process_cluster.Rmd). Additionally, the Gini coefficient data utilized throughout this procedure, [gini_clean.csv](data/gini_clean.csv), can be retrieved from the data folder."
 
 ## Remote Sensing Data
 
